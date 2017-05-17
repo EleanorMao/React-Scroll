@@ -15,7 +15,7 @@ class Gesture extends React.Component {
 
     getGestureEvent(e) {
         let Map = this.props.Map;
-        let {clientX, clientY} = e.changedTouches[0];
+        let {clientX, clientY, pageY, pageX} = e.changedTouches[0];
         let {startX, startY, startTime} = this.state;
         let offsetX = clientX - startX;
         let offsetY = clientY - startY;
@@ -36,6 +36,8 @@ class Gesture extends React.Component {
         return {
             startX,
             startY,
+            pageY,
+            pageX,
             clientX,
             clientY,
             offsetX,
