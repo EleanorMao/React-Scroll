@@ -41,7 +41,7 @@ class Scroll extends React.Component {
         body.style.overflow = 'hidden';
         // set css prefix
         let _prefix = (() => {
-            var vendors = ['t', 'WebkitT'],
+            let vendors = ['t', 'WebkitT'],
                 transform,
                 l = vendors.length;
 
@@ -73,7 +73,7 @@ class Scroll extends React.Component {
             this.setState({used: true, startY: parseFloat(props.startY)});
         }
         if (props.reset) {
-            console.log('Customize Reset To Top');
+            // console.log('Customize Reset To Top');
             this._scrollTo(0, 0, 400);
         }
     }
@@ -87,6 +87,7 @@ class Scroll extends React.Component {
         let scroller = this.refs.scroller;
         let _wrapperHeight = wrapper.clientHeight;
         let _scrollerHeight = scroller.scrollHeight || scroller.clientHeight;
+        // let _offsetY = this._getOffsetWrap(wrapper);
         let _maxScrollY = _wrapperHeight - _scrollerHeight;
 
         if (_maxScrollY > 0) {
@@ -100,7 +101,16 @@ class Scroll extends React.Component {
         this._scrollerHeight = _scrollerHeight;
         this._innerHeight = window.innerHeight;
     }
-    
+
+    _getOffsetWrap(input) {
+        let offsetTop = 0;
+        while (input && input.nodeName.toLocaleLowerCase() !== 'body') {
+            offsetTop += input.offsetTop;
+            input = input.offsetParent;
+        }
+        return offsetTop;
+    }
+
     _prefixStyle(style) {
         let _prefix = this._prefix;
         if (_prefix === '') return style;
@@ -112,7 +122,7 @@ class Scroll extends React.Component {
             _wrapperHeight = this._wrapperHeight,
             _maxScrollY = this._maxScrollY,
             speed = Math.abs(distance) / time,
-            deceleration = 0.001,
+            deceleration = 0.0015,
             destination,
             duration;
 
@@ -120,11 +130,11 @@ class Scroll extends React.Component {
         duration = speed / deceleration;
 
         if (destination < _maxScrollY) {
-            destination = _wrapperHeight ? _maxScrollY - (_wrapperHeight / 2.5 * (speed / 8)) : _maxScrollY;
+            destination = _wrapperHeight ? _maxScrollY - (_wrapperHeight / 2.5 * (speed / 9)) : _maxScrollY;
             distance = Math.abs(destination - current);
             duration = distance / speed;
         } else if (destination > 0) {
-            destination = _wrapperHeight ? _wrapperHeight / 2.5 * (speed / 8) : 0;
+            destination = _wrapperHeight ? _wrapperHeight / 2.5 * (speed / 9) : 0;
             distance = Math.abs(current) + destination;
             duration = distance / speed;
         }
@@ -150,9 +160,9 @@ class Scroll extends React.Component {
             }
             if (this.state.scrollEnd) {
                 onScrollEnd(this.handleScrollEnd.bind(this));
-                console.log('Scroll End');
+                // console.log('Scroll End');
             }
-            console.log('Transition End')
+            // console.log('Transition End')
         });
     }
 
@@ -162,12 +172,12 @@ class Scroll extends React.Component {
         let _maxScrollY = this._maxScrollY;
         let distY = startY + movedY;
         if (distY > 0) {
-            console.log(`Reset To Top: ${distY}, ${startY}, ${movedY}`);
+            // console.log(`Reset To Top: ${distY}, ${startY}, ${movedY}`);
             this._scrollTo(0, 0, 400, 0, distY);
             return true;
         }
         if (!this.locked && distY < _maxScrollY) {
-            console.log('Reset To Bottom');
+            // console.log('Reset To Bottom');
             this._scrollTo(0, _maxScrollY, 400, 0, _maxScrollY - distY);
             return true;
         }
@@ -212,7 +222,7 @@ class Scroll extends React.Component {
             if (this.isTransition) {
                 prevState.easeTime = 0;
                 this.isTransition = false;
-                console.log('Stop Transition When Scroll End');
+                // console.log('Stop Transition When Scroll End');
             }
             prevState.scrollEnd = false;
             return prevState;
@@ -232,9 +242,11 @@ class Scroll extends React.Component {
             if (this.isTransition) {
                 prevState.easeTime = 0;
                 this.isTransition = false;
-                console.log('Stop Transition When Touch Start')
+                // console.log('Stop Transition When Touch Start')
             }
             return prevState;
+        }, () => {
+            // console.log(`!!!!START: startY ${this.state.startY}, movedY ${this.state.movedY}, pointY ${this.state.pointY}`)
         });
     }
 
@@ -271,6 +283,8 @@ class Scroll extends React.Component {
 
             prevState.movedY = movedY;
             return prevState;
+        }, () => {
+            // console.log(`MOVE: startY ${this.state.startY}, movedY ${this.state.movedY}, pointY ${this.state.pointY} `)
         });
     }
 
@@ -299,6 +313,7 @@ class Scroll extends React.Component {
                 easeStyle = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
             }
             this._scrollTo(startY, distance - distY, duration, easeStyle);
+            // console.log(`MOMENTUM: startY ${this.state.startY}, movedY ${this.state.movedY}, pointY ${this.state.pointY},  momentumY ${distance - distY}`)
         }
     }
 
@@ -314,7 +329,7 @@ class Scroll extends React.Component {
         scrollStyle[_transform] = `translateY(${startY + movedY}px) translateZ(0px)`;
         scrollStyle[_transitionDuration] = `${easeTime}ms`;
         scrollStyle[_transitionTimingFunction] = easeStyle;
-        
+        // console.log(`Render: ${startY}, ${movedY}, ${startY + movedY}`);
         return (
             <Gesture
                 onSwipeStart={this.onSwipeStart.bind(this)}
@@ -359,12 +374,12 @@ class Scroll extends React.Component {
 
 Scroll.defaultProps = {
     id: '',
-    className: '',
     start: 0,
     length: 0,
     startY: 0,
     style: {},
     totalSize: 0,
+    className: '',
     init: () => {
     },
     onRefresh: () => {
